@@ -31,6 +31,7 @@ namespace Maya2Babylon.Forms
             this.panel1 = new System.Windows.Forms.Panel();
             this.createAnimationButton = new System.Windows.Forms.Button();
             this.deleteAnimationButton = new System.Windows.Forms.Button();
+            this.addTimeEditorAnimationButton = new System.Windows.Forms.Button();
             this.panel2 = new System.Windows.Forms.Panel();
             this.animationListBox = new System.Windows.Forms.ListBox();
             this.ExportPropertiesGroupBox = new System.Windows.Forms.GroupBox();
@@ -54,6 +55,7 @@ namespace Maya2Babylon.Forms
             this.panel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.panel1.Controls.Add(this.createAnimationButton);
             this.panel1.Controls.Add(this.deleteAnimationButton);
+            this.panel1.Controls.Add(this.addTimeEditorAnimationButton);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Location = new System.Drawing.Point(3, 16);
             this.panel1.Name = "panel1";
@@ -70,7 +72,7 @@ namespace Maya2Babylon.Forms
             this.createAnimationButton.TabIndex = 1;
             this.createAnimationButton.Text = "Create";
             this.createAnimationButton.UseVisualStyleBackColor = true;
-            this.createAnimationButton.Click += new System.EventHandler(this.createAnimationButton_Click);
+            this.createAnimationButton.Click += new System.EventHandler(this.createAnimationButton_Click);           
             // 
             // deleteAnimationButton
             // 
@@ -83,6 +85,18 @@ namespace Maya2Babylon.Forms
             this.deleteAnimationButton.Text = "Delete";
             this.deleteAnimationButton.UseVisualStyleBackColor = true;
             this.deleteAnimationButton.Click += new System.EventHandler(this.deleteAnimationButton_Click);
+            // 
+            // addTimeEditorAnimationButton
+            // 
+            this.addTimeEditorAnimationButton.AutoSize = true;
+            this.addTimeEditorAnimationButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.addTimeEditorAnimationButton.Location = new System.Drawing.Point(111, 3);
+            this.addTimeEditorAnimationButton.Name = "addTimeEditorAnimationButton";
+            this.addTimeEditorAnimationButton.Size = new System.Drawing.Size(150, 23);
+            this.addTimeEditorAnimationButton.TabIndex = 2;
+            this.addTimeEditorAnimationButton.Text = "Add Time Editor Animation";
+            this.addTimeEditorAnimationButton.UseVisualStyleBackColor = true;
+            this.addTimeEditorAnimationButton.Click += new System.EventHandler(this.addTimeEditorAnimationButton_Click);
             // 
             // panel2
             // 
@@ -216,6 +230,7 @@ namespace Maya2Babylon.Forms
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Button createAnimationButton;
         private System.Windows.Forms.Button deleteAnimationButton;
+        private System.Windows.Forms.Button addTimeEditorAnimationButton;
         private AnimationGroupControl animationGroupControl;
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.ListBox animationListBox;

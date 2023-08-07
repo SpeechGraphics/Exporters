@@ -117,6 +117,40 @@ namespace Maya2Babylon.Forms
             animationListBox.SelectedItem = selectedItem;
         }
 
+        /// <summary>
+        /// Event handler for the "Add Time Editor Animation" button click. Retrieves information about all clips in the Time Editor and adds them to the animation group.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
+        private void addTimeEditorAnimationButton_Click(object sender, EventArgs e)
+        {
+            MIntArray clipIds = new MIntArray();
+            MGlobal.executeCommand("timeEditor -allClips \"\" ", clipIds);
+
+            foreach (int clipId in clipIds)
+            {
+                // get clip name                
+                string clipName = MGlobal.executeCommandStringResult($"timeEditorClip -q -name {clipId}");
+
+                // get clip startTime
+                MGlobal.executeCommand($"timeEditorClip -q -startTime -absolute {clipId}", out int clipStartTime);
+
+                // get clip endTime
+                MGlobal.executeCommand($"timeEditorClip -q -endTime -absolute {clipId}", out int clipEndTime);
+
+                // Add clip to animation group
+                AnimationGroup newAnimationGroup = new AnimationGroup();
+                newAnimationGroup.Name = clipName;
+                newAnimationGroup.FrameStart = clipStartTime;
+                newAnimationGroup.FrameEnd = clipEndTime;
+
+                // save info and animation list entry
+                animationGroups.Add(newAnimationGroup);
+                animationGroups.SaveToData();
+                animationListBinding.ResetBindings(false);
+            }
+        }
+
         private void animationList_SelectedValueChanged(object sender, EventArgs e)
         {
             animationGroupControl.SetAnimationGroupInfo((AnimationGroup)animationListBox.SelectedItem);
