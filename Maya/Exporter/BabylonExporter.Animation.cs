@@ -543,10 +543,10 @@ namespace Maya2Babylon
         }
 
         /// <summary>
-        /// Gets the transform animations for the given nodes and adds them to the corresponding Babylon bones.
+        /// Generates animation keys for the transform nodes in the scene.
         /// </summary>
-        /// <param name="nodes">The dictionary of Maya transform nodes and their corresponding Babylon bones.</param>
-        private void GetTransformAnimations(Dictionary<MFnTransform, BabylonBone> nodes)
+        /// <param name="boneCache">The list of bone dictionaries.</param>
+        private void GetTransformAnimations(List<Dictionary<MFnTransform, BabylonBone>> boneCache)
         {
             int start = Loader.GetMinTime();
             int end = Loader.GetMaxTime();
@@ -554,30 +554,36 @@ namespace Maya2Babylon
             for (int currentFrame = start; currentFrame <= end; currentFrame++)
             {
                 MGlobal.executeCommand($"currentTime {currentFrame}");
-                foreach (var node in nodes)
+                foreach (var element in boneCache)
                 {
-                    // Set the animation key
-                    BabylonAnimationKey key = new BabylonAnimationKey()
+                    foreach (var node in element)
                     {
-                        frame = currentFrame,
-                        values = GetBabylonMatrix(node.Key).m.ToArray()
-                    };
+                        // Set the animation key
+                        BabylonAnimationKey key = new BabylonAnimationKey()
+                        {
+                            frame = currentFrame,
+                            values = GetBabylonMatrix(node.Key).m.ToArray()
+                        };
 
-                    node.Value.animation.keysFull.Add(key);
+                        node.Value.animation.keysFull.Add(key);
+                    }
                 }
             }
 
-            foreach (var node in nodes)
+            foreach (var element in boneCache)
             {
-                var keys = new List<BabylonAnimationKey>(node.Value.animation.keysFull);
-                OptimizeAnimations(keys, false); // Do not remove linear animation keys for bones
-                if (IsAnimationKeysRelevant(keys, "_matrix", GetBabylonMatrix(node.Key, start).m.ToArray()))
+                foreach (var node in element)
                 {
-                    node.Value.animation.keys = keys.ToArray();
-                }
-                else
-                {
-                    node.Value.animation = null;
+                    var keys = new List<BabylonAnimationKey>(node.Value.animation.keysFull);
+                    OptimizeAnimations(keys, false); // Do not remove linear animation keys for bones
+                    if (IsAnimationKeysRelevant(keys, "_matrix", GetBabylonMatrix(node.Key, start).m.ToArray()))
+                    {
+                        node.Value.animation.keys = keys.ToArray();
+                    }
+                    else
+                    {
+                        node.Value.animation = null;
+                    }
                 }
             }
         }
