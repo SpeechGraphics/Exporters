@@ -542,17 +542,76 @@ namespace Maya2Babylon
             return animation;
         }
 
-        private MMatrix GetMMatrix(MFnTransform mFnTransform, double currentFrame = 0)
+        /// <summary>
+        /// Gets the transform animations for the given nodes and adds them to the corresponding Babylon bones.
+        /// </summary>
+        /// <param name="nodes">The dictionary of Maya transform nodes and their corresponding Babylon bones.</param>
+        private void GetTransformAnimations(Dictionary<MFnTransform, BabylonBone> nodes)
+        {
+            int start = Loader.GetMinTime();
+            int end = Loader.GetMaxTime();
+
+            for (int currentFrame = start; currentFrame <= end; currentFrame++)
+            {
+                MGlobal.executeCommand($"currentTime {currentFrame}");
+                foreach (var node in nodes)
+                {
+                    // Set the animation key
+                    BabylonAnimationKey key = new BabylonAnimationKey()
+                    {
+                        frame = currentFrame,
+                        values = GetBabylonMatrix(node.Key).m.ToArray()
+                    };
+
+                    node.Value.animation.keysFull.Add(key);
+                }
+            }
+
+            foreach (var node in nodes)
+            {
+                var keys = new List<BabylonAnimationKey>(node.Value.animation.keysFull);
+                OptimizeAnimations(keys, false); // Do not remove linear animation keys for bones
+                if (IsAnimationKeysRelevant(keys, "_matrix", GetBabylonMatrix(node.Key, start).m.ToArray()))
+                {
+                    node.Value.animation.keys = keys.ToArray();
+                }
+                else
+                {
+                    node.Value.animation = null;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the transformation matrix for the specified Maya transform node at the given frame.
+        /// </summary>
+        /// <param name="mFnTransform">The Maya transform node to get the matrix for.</param>
+        /// <param name="currentFrame">The frame to get the matrix for. If not specified, the current frame is used.</param>
+        /// <returns>The transformation matrix for the specified Maya transform node at the given frame.</returns>
+        private MMatrix GetMMatrix(MFnTransform mFnTransform, double currentFrame = -1.0)
         {
             // get transformation matrix at this frame
             MDoubleArray mDoubleMatrix = new MDoubleArray();
-            MGlobal.executeCommand($"getAttr -t {currentFrame} {mFnTransform.fullPathName}.matrix", mDoubleMatrix);
+            if (currentFrame >= 0)
+            {
+                MGlobal.executeCommand($"getAttr -t {currentFrame} {mFnTransform.fullPathName}.matrix", mDoubleMatrix);
+            }
+            else
+            {
+                MGlobal.executeCommand($"getAttr {mFnTransform.fullPathName}.matrix", mDoubleMatrix);
+            }
             mDoubleMatrix.get(out float[] localMatrix);
 
             return new MMatrix(localMatrix);
         }
 
-        private BabylonMatrix GetBabylonMatrix(MFnTransform mFnTransform, double currentFrame = 0)
+        /// <summary>
+        /// Gets the Babylon matrix for the given Maya transform node at the specified frame.
+        /// </summary>
+        /// <param name="mFnTransform">The Maya transform node to get the matrix for.</param>
+        /// <param name="currentFrame">The frame to get the matrix at. If not specified, the current frame will be used.</param>
+        /// <returns>The Babylon matrix for the given Maya transform node at the specified frame.</returns>
+        private BabylonMatrix GetBabylonMatrix(MFnTransform mFnTransform, double currentFrame = -1.0)
         {
             return ConvertMayaToBabylonMatrix(GetMMatrix(mFnTransform, currentFrame));
         }
