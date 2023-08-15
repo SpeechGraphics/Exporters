@@ -21,6 +21,9 @@ namespace Maya2Babylon
         private float progressSkinStep;
         private float progressBoneStep;
 
+        // For animation export optimization
+        private List<Dictionary<MFnTransform, BabylonBone>> transformToBoneCache = new List<Dictionary<MFnTransform, BabylonBone>>();
+
         /// <summary>
         /// Create the BabylonSkeleton from the Maya MFnSkinCluster.
         /// And add it to the BabylonScene.
@@ -42,6 +45,15 @@ namespace Maya2Babylon
             };
             
             babylonScene.SkeletonsList.Add(babylonSkeleton);
+        }
+
+        /// <summary>
+        /// Export animations for the skeleton.
+        /// </summary>
+        private void ExportAnimations()
+        {
+            GetTransformAnimations(transformToBoneCache);
+            transformToBoneCache.Clear();
         }
 
         /// <summary>
@@ -343,6 +355,7 @@ namespace Maya2Babylon
             List<BabylonBone> bones = new List<BabylonBone>();
             Dictionary<string, int> indexByFullPathName = GetIndexByFullPathNameDictionary(skin);
             List<MObject> revelantNodes = GetRevelantNodes(skin);
+            Dictionary<MFnTransform, BabylonBone> boneTransformsDictionary = new Dictionary<MFnTransform, BabylonBone>();
 
             progressBoneStep = progressSkinStep / revelantNodes.Count;
 
@@ -375,16 +388,31 @@ namespace Maya2Babylon
                 };
                 if (exportParameters.exportAnimations)
                 {
-                    bone.animation = GetAnimationsFrameByFrameMatrix(currentNodeTransform);
+                    // create the animation with no keys
+                    bone.animation = new BabylonAnimation()
+                    {
+                        name = currentNodeTransform.name + "Animation", // override default animation name
+                        dataType = (int)BabylonAnimation.DataType.Matrix,
+                        loopBehavior = (int)BabylonAnimation.LoopBehavior.Cycle,
+                        framePerSecond = Loader.GetFPS(),
+                        keys = new BabylonAnimationKey[0],
+                        keysFull = new List<BabylonAnimationKey>(),
+                        property = "_matrix"
+                    };
                 }
 
                 bones.Add(bone);
+                boneTransformsDictionary.Add(currentNodeTransform, bone);
                 RaiseVerbose($"Bone: name={bone.name}, index={bone.index}, parentBoneIndex={bone.parentBoneIndex}, matrix={string.Join(" ", bone.matrix)}", logRank + 1);
 
                 // Progress bar
                 progressSkin += progressBoneStep;
                 ReportProgressChanged(progressSkin);
                 CheckCancelled();
+            }
+            if (exportParameters.exportAnimations)
+            {
+                transformToBoneCache.Add(boneTransformsDictionary);
             }
 
             // sort

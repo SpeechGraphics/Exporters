@@ -428,6 +428,10 @@ namespace Maya2Babylon
                 {
                     ExportSkin(skin, babylonScene);
                 }
+                if (exportParameters.exportAnimations)
+                {
+                    ExportAnimations();
+                }
             }
 
             // set back the frame
