@@ -101,19 +101,18 @@ namespace Babylon2GLTF
                 }
                 if (hasBones)
                 {
-                    // In babylon, the 4 bones indices are stored in a single int
-                    // Each bone index is 8-bit offset from the next
-                    ushort[] unpackBabylonBonesToArray (uint babylonBoneIndices)
+                    // In babylon, the 4 bones indices are stored in a single long
+                    // Each bone index is 16-bit offset from the next
+                    ushort[] unpackBabylonBonesToArray(ulong babylonBoneIndices)
                     {
-                        uint bone3 = babylonBoneIndices >> 24;
-                        uint bone2 = (babylonBoneIndices << 8) >> 24;
-                        uint bone1 = (babylonBoneIndices << 16) >> 24;
-                        uint bone0 = (babylonBoneIndices << 24) >> 24;
-                        babylonBoneIndices -= bone0 << 0;
+                        ulong bone3 = babylonBoneIndices >> 48;
+                        ulong bone2 = (babylonBoneIndices << 16) >> 48;
+                        ulong bone1 = (babylonBoneIndices << 32) >> 48;
+                        ulong bone0 = (babylonBoneIndices << 48) >> 48;
                         return new ushort[] { (ushort)bone0, (ushort)bone1, (ushort)bone2, (ushort)bone3 };
                     }
 
-                    uint bonesIndicesMerged = (uint)meshData.matricesIndices[indexVertex];
+                    ulong bonesIndicesMerged = (ulong)meshData.matricesIndices[indexVertex];
                     globalVertex.BonesIndices = unpackBabylonBonesToArray(bonesIndicesMerged);
                     globalVertex.BonesWeights = ArrayExtension.SubArrayFromEntity(meshData.matricesWeights, indexVertex, 4);
                     void clearBoneUnusedIndices(ushort[] indices, float[] weights)
@@ -132,7 +131,7 @@ namespace Babylon2GLTF
 
                     if (hasBonesExtra)
                     {
-                        uint bonesIndicesExtraMerged = (uint)meshData.matricesIndicesExtra[indexVertex];
+                        ulong bonesIndicesExtraMerged = (ulong)meshData.matricesIndicesExtra[indexVertex];
                         globalVertex.BonesIndicesExtra = unpackBabylonBonesToArray(bonesIndicesExtraMerged);
                         globalVertex.BonesWeightsExtra = ArrayExtension.SubArrayFromEntity(meshData.matricesWeightsExtra, indexVertex, 4);
                         

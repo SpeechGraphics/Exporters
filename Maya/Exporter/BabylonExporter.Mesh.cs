@@ -982,11 +982,11 @@ namespace Maya2Babylon
                 float weight1 = 0;
                 float weight2 = 0;
                 float weight3 = 0;
-                int bone0 = 0;
-                int bone1 = 0;
-                int bone2 = 0;
-                int bone3 = 0;
-                int nbBones = weightByInfluenceIndex.Count; // number of bones/influences for this vertex
+                long bone0 = 0;
+                long bone1 = 0;
+                long bone2 = 0;
+                long bone3 = 0;
+                long nbBones = weightByInfluenceIndex.Count; // number of bones/influences for this vertex
 
                 if (nbBones == 0)
                 {
@@ -1020,7 +1020,7 @@ namespace Maya2Babylon
 
                 float[] weights = { weight0, weight1, weight2, weight3 };
                 vertex.Weights = weights;
-                vertex.BonesIndices = (bone3 << 24) | (bone2 << 16) | (bone1 << 8) | bone0;
+                vertex.BonesIndices = (bone3 << 48) | (bone2 << 32) | (bone1 << 16) | bone0;
 
                 if (nbBones > 4)
                 {
@@ -1050,7 +1050,7 @@ namespace Maya2Babylon
 
                     float[] weightsExtra = { weight0, weight1, weight2, weight3 };
                     vertex.WeightsExtra = weightsExtra;
-                    vertex.BonesIndicesExtra = (bone3 << 24) | (bone2 << 16) | (bone1 << 8) | bone0;
+                    vertex.BonesIndicesExtra = (bone3 << 48) | (bone2 << 32) | (bone1 << 16) | bone0;
                 }
             }
             return vertex;
