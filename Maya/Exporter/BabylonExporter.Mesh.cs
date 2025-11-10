@@ -1368,7 +1368,7 @@ namespace Maya2Babylon
                         {
                             BabylonMorphTarget babylonMorphTarget = new BabylonMorphTarget
                             {
-                                name = $"{blendShapeDeformer.name}.{currentWeightName}",
+                                name = $"{currentWeightName}",
                                 influence = envelope * weight,
                                 id = Guid.NewGuid().ToString()
                             };
